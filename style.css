@@ -1,1 +1,79 @@
-here is a css file
+body {
+    background: #f2f4f8;
+    font-family: Arial, sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+.card {
+    background: white;
+    padding: 25px;
+    width: 350px;
+    border-radius: 20px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.dashboard-card {
+    width: 500px;
+}
+
+input {
+    width: 100%;
+    padding: 10px;
+    margin: 8px 0;
+    border-radius: 10px;
+    border: 1px solid #ccc;
+}
+
+button {
+    width: 100%;
+    padding: 10px;
+    background: #4285f4;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+}
+
+button:hover {
+    background: #306ad6;
+}
+
+.switch {
+    color: blue;
+    cursor: pointer;
+    text-align: center;
+}
+
+.list-item {
+    background: #e9ecf3;
+    padding: 10px;
+    margin-top: 10px;
+    border-radius: 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.delete-btn {
+    background: red;
+    padding: 5px 10px;
+    border-radius: 8px;
+    border: none;
+    color: white;
+    cursor: pointer;
+}
+
+/* Password + Eye */
+.entry-text {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.eye {
+    cursor: pointer;
+    font-size: 18px;
+}
