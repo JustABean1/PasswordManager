@@ -16,37 +16,104 @@ function showLogin() {
 // ---------------------------
 // LOGIN
 // ---------------------------
-function login() {
+async function login() {
     let username = document.getElementById("login-username").value;
     let password = document.getElementById("login-password").value;
-
-    // TODO: AJAX CALL TO BACKEND (php/login.php)
     console.log("Login attempt:", username, password);
 
+    //AJAX CALL TO BACKEND (maybe I could make this a single function for both login and signup?)
+    const formData = new FormData();
+    formData.append("action", "login");
+    formData.append("username", username);
+    formData.append("password", password);
+
+    try {
+        const response = await fetch("api.php", {
+            method: "POST",
+            body: formData
+        });
+
+        const result = await response.json();
+        console.log("Server response:", result);
+
+        if (result.success) {
+            alert("Logged in!");
+        } else {
+            alert(result.message);
+        }
+
+    } catch (error) {
+        console.error("Request failed:", error);
+    }      
+            
     // TEMP: auto-redirect for demo
-    window.location.href = "dashboard.html";
+    //window.location.href = "dashboard.html";
 }
 
 // ---------------------------
 // SIGNUP
 // ---------------------------
-function signup() {
+async function signup() {
     let username = document.getElementById("signup-username").value;
     let password = document.getElementById("signup-password").value;
 
-    // TODO: AJAX CALL TO BACKEND (php/signup.php)
     console.log("Signup attempt:", username, password);
+    //AJAX CALL TO BACKEND 
+    formData.append("action", "signup");
+    formData.append("username", username);
+    formData.append("password", password);
+
+    try {
+        const response = await fetch("api.php", {
+            method: "POST",
+            body: formData
+        });
+
+        const result = await response.json();
+        console.log("Server response:", result);
+
+        if (result.success) {
+            alert("Signed up! Please log in.");
+            showLogin();
+        } else {
+            alert(result.message);
+        }
+
+    } catch (error) {
+        console.error("Request failed:", error);
+    }
+    
 
     // TEMP: after signup, switch back to login
-    showLogin();
+    //showLogin();
 }
 
 // ---------------------------
 // LOAD PASSWORDS
 // ---------------------------
-function loadPasswords() {
-    // TODO: AJAX CALL to fetch saved credentials (php/getPasswords.php)
+async function loadPasswords() {
+    //AJAX CALL to fetch saved credentials
     console.log("Fetching passwords...");
+
+    let list = document.getElementById("password-list");
+    list.innerHTML = "";
+
+    const formData = new FormData();
+    formData.append("action", "loadPasswords");
+
+    try {
+        const response = await fetch("api.php", {
+            method: "POST",
+            body: formData
+        });
+
+        const data = await response.json();
+        console.log("Server returned:", data);
+
+        if (!data.success) {
+            list.innerHTML = "<p>Error loading passwords.</p>";
+            return;
+        }
 
     // TEMP: fake data for testing
     let fakeData = [
@@ -57,7 +124,8 @@ function loadPasswords() {
     let list = document.getElementById("password-list");
     list.innerHTML = "";
 
-    fakeData.forEach(entry => {
+    //no longer using fake data (actually display the credentials)
+    data.forEach(entry => {
         let item = document.createElement("div");
         item.classList.add("list-item");
         item.innerHTML = `
@@ -81,32 +149,80 @@ if (window.location.pathname.includes("dashboard.html")) {
 // ---------------------------
 // ADD PASSWORD
 // ---------------------------
-function addPassword() {
+//I think add/delete could also be combined into a single function with parameters, but that seems harder to debug
+async function addPassword() {
     let site = document.getElementById("site").value;
     let username = document.getElementById("site-username").value;
     let password = document.getElementById("site-password").value;
 
-    // TODO: AJAX call to php/addPassword.php
+    //AJAX call to php backend
     console.log("Adding password:", site, username, password);
+    formData.append("action", "addPassword");
+    formData.append("site", site);
+    formData.append("username", username);
+    formData.append("password", password);
 
-    // TEMP: refresh list
-    loadPasswords();
+    try {
+        const response = await fetch("api.php", {
+            method: "POST",
+            body: formData
+        });
 
-    // Clear form fields
-    document.getElementById("site").value = "";
-    document.getElementById("site-username").value = "";
-    document.getElementById("site-password").value = "";
+        const result = await response.json();
+        console.log("Server response:", result);
+
+        if (result.success) {
+            //refresh list
+            loadPasswords();
+
+        //clear form fields
+        document.getElementById("site").value = "";
+        document.getElementById("site-username").value = "";
+        document.getElementById("site-password").value = "";
+        } else {
+            alert(result.message);
+        }
+
+    } catch (error) {
+        console.error("Request failed:", error);
+    }
+
 }
 
 // ---------------------------
 // DELETE PASSWORD
 // ---------------------------
 function deletePassword(site) {
-    // TODO: AJAX call to php/deletePassword.php
-    console.log("Deleting:", site);
+    formData.append("action", "deletePassword");
+    formData.append("site", site);
+    formData.append("username", username);
+    formData.append("password", password);
 
-    // TEMP: refresh list
-    loadPasswords();
+    try {
+        const response = await fetch("api.php", {
+            method: "POST",
+            body: formData
+        });
+
+        const result = await response.json();
+        console.log("Server response:", result);
+
+        if (result.success) {
+            //refresh list
+            loadPasswords();
+
+        //clear form fields
+        document.getElementById("site").value = "";
+        document.getElementById("site-username").value = "";
+        document.getElementById("site-password").value = "";
+        } else {
+            alert(result.message);
+        }
+
+    } catch (error) {
+        console.error("Request failed:", error);
+    }
+    console.log("Deleting:", site);
 }
 
 // ---------------------------
@@ -124,4 +240,4 @@ function togglePassword(icon) {
         span.innerText = "•••••••";
         icon.innerText = "👁️";
     }
-}
+} }
