@@ -1,14 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Your Passwords</title>
-    <link rel="stylesheet" href="style.css">
+<meta charset="UTF-8">
+<title>Your Password Vault</title>
+<link rel="stylesheet" href="style.css">
 </head>
 <body>
-
 <div class="card dashboard-card">
-
     <h2>Your Password Vault</h2>
 
     <div class="add-form">
@@ -20,9 +18,12 @@
 
     <h3>Saved Credentials</h3>
     <div id="password-list" class="list"></div>
-
 </div>
 
 <script src="script.js"></script>
+<script>
+    // load passwords immediately when dashboard loads
+    loadPasswords();
+</script>
 </body>
 </html>
