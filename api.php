@@ -8,9 +8,9 @@ header("Content-Type: application/json");
 // ---------------------------
 
 $servername = "localhost";
-$server_username = "username";
-$server_password = "password";
-$dbname = "myDB";
+$server_username = "CS344";
+$server_password = "CS344F25";
+$dbname = "CS344F25";
 
 // Create connection
 $conn = new mysqli($servername, $server_username, $server_password, $dbname);
@@ -27,7 +27,7 @@ if ($conn->connect_error) {
 function login($conn, $username, $password)
 {
     // prepare query
-    $stmt = $conn->prepare("SELECT id, password FROM users WHERE username = ?");
+    $stmt = $conn->prepare("SELECT id, password FROM PasswordManager_users WHERE username = ?");
     $stmt->bind_param("s", $username);
     $stmt->execute();
     $stmt->store_result();
@@ -70,7 +70,7 @@ function login($conn, $username, $password)
 function signup($conn, $username, $password)
 {
     // prepare query
-    $stmt = $conn->prepare("SELECT id FROM users WHERE username = ?");
+    $stmt = $conn->prepare("SELECT id FROM PasswordManager_users WHERE username = ?");
     $stmt->bind_param("s", $username);
     $stmt->execute();
     $stmt->store_result();
@@ -89,7 +89,7 @@ function signup($conn, $username, $password)
     $hashed_password = password_hash($password, PASSWORD_DEFAULT);
 
     // add new user to database
-    $stmt = $conn->prepare("INSERT INTO users (username, password) VALUES (?, ?)");
+    $stmt = $conn->prepare("INSERT INTO PasswordManager_users (username, password) VALUES (?, ?)");
     $stmt->bind_param("ss", $username, $hashed_password);
 
     if ($stmt->execute()) {
@@ -115,7 +115,7 @@ function signup($conn, $username, $password)
 function loadPasswords($conn, $user_id)
 {
     // prepare query to fetch passwords for the user
-    $stmt = $conn->prepare("SELECT id, site, site_user, site_pass FROM passwords WHERE user_id = ? ORDER BY id DESC");
+    $stmt = $conn->prepare("SELECT id, site, site_user, site_pass FROM PasswordManager_passwords WHERE user_id = ? ORDER BY id DESC");
     $stmt->bind_param("i", $user_id);
     $stmt->execute();
 
@@ -148,7 +148,7 @@ function addPassword($conn, $user_id, $site, $site_user, $site_pass)
     }
 
     // prepare insert query
-    $stmt = $conn->prepare("INSERT INTO passwords (user_id, site, site_user, site_pass) VALUES (?, ?, ?, ?)");
+    $stmt = $conn->prepare("INSERT INTO PasswordManager_passwords (user_id, site, site_user, site_pass) VALUES (?, ?, ?, ?)");
     $stmt->bind_param("isss", $user_id, $site, $site_user, $site_pass);
 
     if ($stmt->execute()) {
@@ -177,7 +177,7 @@ function deletePassword($conn, $user_id, $site_id)
         return;
     }
 
-    $stmt = $conn->prepare("DELETE FROM passwords WHERE id = ? AND user_id = ?");
+    $stmt = $conn->prepare("DELETE FROM PasswordManager_passwords WHERE id = ? AND user_id = ?");
     $stmt->bind_param("ii", $site_id, $user_id);
 
     if ($stmt->execute()) {
