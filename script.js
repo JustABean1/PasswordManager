@@ -2,12 +2,14 @@
 // SWITCH LOGIN/SIGNUP FORMS
 // ---------------------------
 function showSignup() {
+    console.log('showSignup invoked');
     document.getElementById("login-form").style.display = "none";
     document.getElementById("signup-form").style.display = "block";
     document.getElementById("form-title").innerText = "Sign Up";
 }
 
 function showLogin() {
+    console.log('showLogin invoked');
     document.getElementById("signup-form").style.display = "none";
     document.getElementById("login-form").style.display = "block";
     document.getElementById("form-title").innerText = "Sign In";
@@ -58,7 +60,8 @@ async function signup() {
     let password = document.getElementById("signup-password").value;
 
     console.log("Signup attempt:", username, password);
-    //AJAX CALL TO BACKEND 
+    //AJAX CALL TO BACKEND
+    const formData = new FormData();
     formData.append("action", "signup");
     formData.append("username", username);
     formData.append("password", password);
@@ -114,28 +117,21 @@ async function loadPasswords() {
             list.innerHTML = "<p>Error loading passwords.</p>";
             return;
         }
-
-    // TEMP: fake data for testing
-    let fakeData = [
-        { site: "Google", username: "ben123", password: "mypassword123" },
-        { site: "Facebook", username: "jackc", password: "hunter22" }
-    ];
-
-    let list = document.getElementById("password-list");
-    list.innerHTML = "";
+    // data should contain a `passwords` array returned from the API
+    const passwords = data.passwords || [];
 
     //no longer using fake data (actually display the credentials)
-    data.forEach(entry => {
+    passwords.forEach(entry => {
         let item = document.createElement("div");
         item.classList.add("list-item");
         item.innerHTML = `
             <div class="entry-text">
                 <strong>${entry.site}</strong><br>
-                ${entry.username} —
-                <span class="pwd" data-password="${entry.password}">•••••••</span>
+                ${entry.site_user} —
+                <span class="pwd" data-password="${entry.site_pass}">•••••••</span>
                 <span class="eye" onclick="togglePassword(this)">👁️</span>
             </div>
-            <button class="delete-btn" onclick="deletePassword('${entry.site}')">Delete</button>
+            <button class="delete-btn" onclick="deletePassword(${entry.id})">Delete</button>
         `;
         list.appendChild(item);
     });
@@ -160,10 +156,12 @@ async function addPassword() {
 
     //AJAX call to php backend
     console.log("Adding password:", site, username, password);
+    const formData = new FormData();
     formData.append("action", "addPassword");
     formData.append("site", site);
-    formData.append("username", username);
-    formData.append("password", password);
+    // backend expects fields `site_user` & `site_pass`
+    formData.append("site_user", username);
+    formData.append("site_pass", password);
 
     try {
         const response = await fetch("api.php", {
@@ -197,9 +195,8 @@ async function addPassword() {
 // ---------------------------
 async function deletePassword(site) {
     formData.append("action", "deletePassword");
-    formData.append("site", site);
-    formData.append("username", username);
-    formData.append("password", password);
+    // API expects `site_id` as the id of the row to delete
+    formData.append("site_id", siteId);
 
     try {
         const response = await fetch("api.php", {
@@ -225,7 +222,7 @@ async function deletePassword(site) {
     } catch (error) {
         console.error("Request failed:", error);
     }
-    console.log("Deleting:", site);
+    console.log("Deleting id:", siteId);
 }
 
 // ---------------------------
@@ -244,3 +241,44 @@ function togglePassword(icon) {
         icon.innerText = "👁️";
     }
 } 
+
+// Ensure functions are available on the window object for inline onclick handlers (robustness)
+if (typeof window !== 'undefined') {
+    window.showSignup = showSignup;
+    window.showLogin = showLogin;
+    window.login = login;
+    window.signup = signup;
+    window.addPassword = addPassword;
+    window.deletePassword = deletePassword;
+    window.togglePassword = togglePassword;
+    window.loadPasswords = loadPasswords;
+}
+
+// Fallback: add event listeners if inline handlers fail or script isn't part of the global scope
+function attachSwitchHandlers() {
+    try {
+        const loginSwitch = document.querySelector('#login-form .switch');
+        if (loginSwitch) {
+            // Remove inline onclick to avoid ReferenceError if function is not global
+            loginSwitch.removeAttribute('onclick');
+            loginSwitch.addEventListener('click', showSignup);
+        }
+
+        const signupSwitch = document.querySelector('#signup-form .switch');
+        if (signupSwitch) {
+            // Remove inline onclick to avoid ReferenceError if function is not global
+            signupSwitch.removeAttribute('onclick');
+            signupSwitch.addEventListener('click', showLogin);
+        }
+    } catch (e) {
+        // silently ignore if DOM isn't exactly as expected
+        console.warn('Fallback event listeners not attached', e);
+    }
+}
+
+// If DOM already loaded, run immediately, otherwise wait for DOMContentLoaded
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', attachSwitchHandlers);
+} else {
+    attachSwitchHandlers();
+}

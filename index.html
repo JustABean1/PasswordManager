@@ -14,15 +14,43 @@
         <input type="text" id="login-username" placeholder="Username">
         <input type="password" id="login-password" placeholder="Password">
         <button onclick="login()">Sign In</button>
-        <p class="switch" onclick="showSignup()">Don't have an account? Sign Up</p>
+        <p class="switch">Don't have an account? Sign Up</p>
     </div>
 
     <div id="signup-form" style="display:none;">
         <input type="text" id="signup-username" placeholder="Choose Username">
         <input type="password" id="signup-password" placeholder="Choose Password">
         <button onclick="signup()">Create Account</button>
-        <p class="switch" onclick="showLogin()">Already have an account? Sign In</p>
+        <p class="switch">Already have an account? Sign In</p>
     </div>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Your Passwords</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="card dashboard-card">
+
+    <h2>Your Password Vault</h2>
+
+    <div class="add-form">
+        <input type="text" id="site" placeholder="Website">
+        <input type="text" id="site-username" placeholder="Username">
+        <input type="password" id="site-password" placeholder="Password">
+        <button onclick="addPassword()">Add</button>
+    </div>
+
+    <h3>Saved Credentials</h3>
+    <div id="password-list" class="list"></div>
+
 </div>
 
 <script src="script.js"></script>
