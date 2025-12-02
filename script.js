@@ -139,6 +139,9 @@ async function loadPasswords() {
         `;
         list.appendChild(item);
     });
+} catch (error) {
+        console.error("Request failed:", error);
+    }
 }
 
 // Load passwords automatically if on dashboard page
@@ -240,4 +243,4 @@ function togglePassword(icon) {
         span.innerText = "•••••••";
         icon.innerText = "👁️";
     }
-} }
+} 
