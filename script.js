@@ -195,7 +195,7 @@ async function addPassword() {
 // ---------------------------
 // DELETE PASSWORD
 // ---------------------------
-function deletePassword(site) {
+async function deletePassword(site) {
     formData.append("action", "deletePassword");
     formData.append("site", site);
     formData.append("username", username);
