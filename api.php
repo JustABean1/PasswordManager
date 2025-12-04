@@ -20,6 +20,43 @@ if ($conn->connect_error) {
 }
 
 // ---------------------------
+// ENCRYPTION/DECRYPTION FUNCTIONS
+// ---------------------------
+
+// ENCRYPTION KEY
+$encryption_key = "fkg244dsf3g34n34dgdfgdg4435ddg34";
+
+// ENCRYPT PASSWORD
+function encryptPassword($password, $key)
+{
+    // generate random psuedo bytes for iv
+    $iv = openssl_random_pseudo_bytes(openssl_cipher_iv_length('AES-256-CBC'));
+    
+    // encrypt password
+    $encrypted = openssl_encrypt($password, 'AES-256-CBC', $key, 0, $iv);
+    
+    // return encrypted password with base64 encoding
+    return base64_encode($iv . $encrypted);
+}
+
+// DECRYPT PASSWORD
+function decryptPassword($encrypted_data, $key)
+{
+    // decode the base64 encoded data
+    $data = base64_decode($encrypted_data);
+    
+    // extract iv
+    $iv_length = openssl_cipher_iv_length('AES-256-CBC');
+    $iv = substr($data, 0, $iv_length);
+    
+    // extract password
+    $encrypted = substr($data, $iv_length);
+    
+    // return decrypted password
+    return openssl_decrypt($encrypted, 'AES-256-CBC', $key, 0, $iv);
+}
+
+// ---------------------------
 // AUTHENTICATION FUNCTIONS
 // ---------------------------
 
@@ -114,6 +151,8 @@ function signup($conn, $username, $password)
 // LOAD PASSWORDS
 function loadPasswords($conn, $user_id)
 {
+    global $encryption_key;
+    
     // prepare query to fetch passwords for the user
     $stmt = $conn->prepare("SELECT id, site, site_user, site_pass FROM PasswordManager_passwords WHERE user_id = ? ORDER BY id DESC");
     $stmt->bind_param("i", $user_id);
@@ -122,8 +161,10 @@ function loadPasswords($conn, $user_id)
     $result = $stmt->get_result();
     $passwords = [];
 
-    // add each password to the array
+    // add each password to the array and decrypt site_pass
     while ($row = $result->fetch_assoc()) {
+        // decrypt password
+        $row['site_pass'] = decryptPassword($row['site_pass'], $encryption_key);
         $passwords[] = $row;
     }
 
@@ -138,6 +179,8 @@ function loadPasswords($conn, $user_id)
 // ADD PASSWORD
 function addPassword($conn, $user_id, $site, $site_user, $site_pass)
 {
+    global $encryption_key;
+    
     // check for missing fields
     if (!$user_id || empty($site) || empty($site_user) || empty($site_pass)) {
         echo json_encode([
@@ -147,9 +190,12 @@ function addPassword($conn, $user_id, $site, $site_user, $site_pass)
         return;
     }
 
+    // encrypt password
+    $encrypted_pass = encryptPassword($site_pass, $encryption_key);
+
     // prepare insert query
     $stmt = $conn->prepare("INSERT INTO PasswordManager_passwords (user_id, site, site_user, site_pass) VALUES (?, ?, ?, ?)");
-    $stmt->bind_param("isss", $user_id, $site, $site_user, $site_pass);
+    $stmt->bind_param("isss", $user_id, $site, $site_user, $encrypted_pass);
 
     if ($stmt->execute()) {
         echo json_encode([
